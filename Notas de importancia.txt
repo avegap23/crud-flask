@@ -1,0 +1,13 @@
+- Creación de entorno virtual:
+    Python -m venv .nombre_entorno
+
+- Activación de entorno virtual:
+    · Linux/MacOS: source .venv/bin/activate
+    · Windows: .\venv\Scripts\Activate.ps1
+        SI TENEMOS PROBLEMAS, ACTIVAR LA EJECUCIÓN DE SCRIPTS CON POWERSHELL:
+            -> Set-ExecutionPolicy RemoteSigned
+            -> Set-ExecutionPolicy Unrestricted
+            -> Get-ExecutionPolicy
+
+- Instalación de dependencias:
+    pip install -r requirements.txt
