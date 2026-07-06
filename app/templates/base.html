@@ -1,0 +1,89 @@
+<!--
+Archivo base: molde de todas las futuras páginas
+
+https://developer.mozilla.org/en-US/docs/Glossary/Doctype
+https://developers.google.com/search/docs/crawling-indexing/special-tags
+
+Nociones para el archivo robots.txt
+    - index / noindex: con esta etiqueta indicamos a los motores de búsqueda si queremos
+    indexar o no una página en los buscadores
+    - follow / nofollow: esta indica a los bots si debe rastrear o seguir los diferentes
+    enlaces que contiene la página en cuestión
+    - archive / noarchive: con esta etiqueta estamos indicando si queremos que almacene,
+    o no, el contenido de la página web en la memoria caché del navegador
+
+CSS: la carga normal se realiza:
+    <link rel="stylesheet" href="style.css">
+Pero no aquí...
+Para la carga de BootStrap: https://getbootstrap.com/
+
+*** LA TEMPLATE DE FLASK SE CREA EN BASE AL MOTOR DE PLANTILLAS JINJA ***
+https://jinja.palletsprojects.com/en/stable/
+-->
+
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <!-- Metatags -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Otras cargas externas -->
+        <title>{% block title %}CRUD Sencillo{% endblock %}</title>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <link rel="stylesheet" href="../static/css/styles.css">
+        <!-- <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}"> -->
+        <!--
+            {{ }} -> sintaxis Jinja 
+            url_for() -> creación automática de la URL
+                'static' -> tipo de archivo, estático (pertenece a una carpeta llamada "static")
+                filename='css/styles.css' -> tipo de archivo con subcarpeta
+                El resultado sería: /static/css/styles.css
+        -->
+    </head>
+    <body>
+        <!-- Barra superior de navegación -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+            <div class="container">
+                <!-- Creación de la barra de navegación: brand y hamburguesa (por debajo de lg) -->
+                <a class="navbar-brand" href="{{url_for('products.index')}}">CRUD en Flask</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Creación de un pequeño menú: crear un nuevo producto y listar todos los productos-->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('products.index')}}">Listado general de productos</a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('products.create')}}">Nuevo producto</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN -->
+        <main class="container">
+            <!-- MOSTRADO DE ALERTAS SI LAS HUBIESE -->
+            {% with messages = get_flashed_messages(with_categories=true) %} <!-- Mensaje de alerta -->
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{category}} alert-dismissible fade-show" role="alert">
+                            {{message}}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- CONTENIDO INYECTADO -->
+            {% block content %} {% endblock %}
+        </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    </body>
+</html>

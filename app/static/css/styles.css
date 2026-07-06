@@ -1,0 +1,25 @@
+/*
+Archivo de estilos del frontend
+
+Cositas de interés:
+    - h1: tag (etiqueta) de HTML
+    - otras etiquetas:
+        · id = navbar-toggler: uff, ya no es HTML, es algo creado propio. Sólo hay 1 única
+        · class = podemos tener multitud de llamadas
+
+etiqueta { atributo:valor; atributo:valor... } 
+*/
+
+/* TAGS HTML */
+body {
+    background-color: #f7f7f9
+}
+
+/* OTRAS TAGS */
+.card {
+    border: 0;
+    border-radius: 1rem;
+}
+.table td, table th {
+    vertical-align: middle;
+}
