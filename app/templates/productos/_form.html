@@ -1,0 +1,36 @@
+<!-- Archivo _form: formualrio para creación/edición de productos, compartido por varias páginas -->
+
+<!--
+1.- Creación de una variable temporal, se utiliza mucho en creación y edición:
+si el usuario envía el formulario con errores, podemos vovler a mostrar lo que se
+escribió. Además, si el producto ya existe, se pueden mostrar los datos guardados.
+-->
+{% set current = for_data if form_data is defined and form_data else product %}
+
+<!-- 2. Montamos los campos del formulario en cuestión -->
+<div class="mb-3">
+    <label for="name" class="form-label">Nombre</label>
+    <input type="text" class="form-control" name="name" id="name" value="{{ current.name if current else '' }}" maxlength="120" required autofocus>
+</div>
+<div class="mb-3">
+    <label for="description" class="form-label">Descripción</label>
+    <textarea name="form-control" id="description" name="description" rows="4">
+        {{ current.description if current else '' }}
+    </textarea>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="price" class="form-label">Precio</label>
+        <input type="number" class="form-control" name="price" id="price" value="{{ current.price if current else '0.00' }}" step="0.01" min="0" required>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="stock" class="form-label">Stock</label>
+        <input type="number" class="form-control" name="stock" id="stcok" value="{{ current.stock if current else '0' }}" min="0" required>
+    </div>
+</div>
+
+<div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{{ url_for('products.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+</div>

@@ -29,6 +29,7 @@ crud_flask/
 │   │       ├── _form.html
 │   │       ├── create.html
 │   │       ├── detail.html
+│   │       ├── edit.html
 │   │       └── index.html
 │   ├── __init__.py
 │   ├── extensions.py
@@ -46,10 +47,11 @@ crud_flask/
     - `templates/` -> carpeta que guarda los archivos HTML de nuestra aplicación. Una template es un archivo HTML que puede recibir datos desde Python
         - `base.html` -> template principal que sirve para no repetir código en el resto de páginas
         - `productos/` -> carpetas que contiene templates de productos
-            - `_form.html` -> formulario de producto
-            - `create.html` -> editar un nuevo producto
-            - `detail.html` -> muestra el detalle de un producto determinado
-            - `index.html` -> página principal del CRUD de productos, muestra todos los productos de nuestra BBDD
+            - `_form.html` -> template de formulario de producto
+            - `create.html` -> template de creación de producto
+            - `detail.html` -> template de detalle de un producto determinado
+            - `edit.html` -> template de edición de producto
+            - `index.html` -> template de la página principal del CRUD de productos; muestra todos los productos de nuestra BBDD
     - `__init__.py` -> archivo que convierte la carpeta app en un paquete, organizando el proyecto y configurándolo. Este es el patrón APPLICATION FACTORY
     - `extensions.py` -> archivos que tiene las extensiones de Flask (SQLAlchemy)
     - `models.py` -> archivo que define los modelos de la BBDD. Un modelo representa a una tabla

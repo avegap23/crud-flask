@@ -1,0 +1,20 @@
+<!-- Archivo edit.html, edición de productos -->
+
+{% extends 'base.html' %} <!-- Se hereda el contenido de base.html, toda la web completa  -->
+
+{% block title %}Edición: {{ product.name }} - CRUD Sencillo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h4 mb-3">Editar producto</h1>
+                <form method="post">
+                    {% include 'products/_form.html' %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

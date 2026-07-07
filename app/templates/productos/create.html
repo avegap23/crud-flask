@@ -1,0 +1,20 @@
+<!-- Archivo create.html, creación de productos nuevos -->
+
+{% extends 'base.html' %} <!-- Se hereda el contenido de base.html, toda la web completa  -->
+
+{% block title %}Creación de producto - CRUD Sencillo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h4 mb-3">Crear producto</h1>
+                <form method="post">
+                    {% include 'products/_form.html' %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+<!-- Archivo detail.html, detalle de productos -->
+
+{% extends 'base.html' %} <!-- Se hereda el contenido de base.html, toda la web completa  -->
+
+{% block title %}Detalle: {{ product.name }} - CRUD Sencillo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h1 class="h3 mb-1">{{ product.name }}</h1>
+                        <p class="text-muted mb-0">Producto #{{ product.id }}</p>
+                    </div>
+                    <span class="badge text-bg-secondary">Stock: {{ product.stock }}</span>
+                </div>
+                <dl class="row">
+                    <dt class="col-sm-3">Precio</dt>
+                    <dd class="col-sm-9">{{ '%.2f'|format(product.price) }} €</dd>
+                    <dt class="col-sm-3">Descripción</dt>
+                    <dd class="col-sm-9">{{ product.descripcion or 'Sin descripción' }}</dd>
+                </dl>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('products.edit', product_id=product.id) }}">Editar</a>
+                    <form action="{{ url_for('products.delete', product_id=product.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar el producto seleccionado?');" method="post">
+                        <button class="btn btn-outline-danger" type="submit">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
