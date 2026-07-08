@@ -14,9 +14,7 @@ escribió. Además, si el producto ya existe, se pueden mostrar los datos guarda
 </div>
 <div class="mb-3">
     <label for="description" class="form-label">Descripción</label>
-    <textarea class="form-control" id="description" name="description" rows="4">
-        {{ current.description if current else '' }}
-    </textarea>
+    <textarea class="form-control" id="description" name="description" rows="4">{{ current.description if current else '' }}</textarea>
 </div>
 
 <div class="row">
