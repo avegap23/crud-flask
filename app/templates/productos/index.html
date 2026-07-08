@@ -40,7 +40,7 @@
                 <tr>
                     <td>{{ product.id }}</td>
                     <td>
-                        <a href="{{ url_for('products.detail', product_id=product.id) }}" class="fw-semibold text-decoration-none">{{ prodcut.name }}</a>
+                        <a href="{{ url_for('products.detail', product_id=product.id) }}" class="fw-semibold text-decoration-none">{{ product.name }}</a>
                     </td>
                     <td>{{ '%.2f'|format(product.price) }} €</td>
                     <td>{{ product.stock }}</td>

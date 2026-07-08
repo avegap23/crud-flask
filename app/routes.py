@@ -118,13 +118,13 @@ def index():
     # all(): convierte el resultado en una lista [Product(name="teclado"), Product(name="ratón")]
 
     # 4.- renderizamos la plantilla
-    return render_template("productos/index.html", productos=productos, q=q)
+    return render_template("productos/index.html", products=productos, q=q)
 
 # c.- detalle del producto
 @products_bp.route("/products/<int:product_id>") # la URL sería .../products/<ID>
 def detail(product_id):
-    product = db.get_or_404(Product, product_id) # me da el producto o un 404 si no existe
-    return render_template("productos/detail.html", product=product)
+    producto = db.get_or_404(Product, product_id) # me da el producto o un 404 si no existe
+    return render_template("productos/detail.html", product=producto)
 
 # d.- creación de nuevos productos
 @products_bp.route("/products/new", methods=["GET", "POST"]) # la url sería .../products/new
