@@ -36,6 +36,7 @@ def create_app(config_class=Config):
 
     # 5.- Importación de Blueprints (que agrupan rutas)
     from .routes import products_bp # evitamos importaciones circulares
+    app.register_blueprint(products_bp) # registro para que funcionen las rutas
 
     # 6.- Inyecta un coomando en la terminal
     @app.cli.command("init-db")

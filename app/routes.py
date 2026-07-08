@@ -42,7 +42,7 @@ VENTAJAS:
 
 # IMPORTS -----------------------------------------------------------------------------------------
 from decimal import Decimal, InvalidOperation # https://docs.python.org/3/library/decimal.html
-from flask import Blueprint, flash, redirect, render_template, request, url_for # 
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from .extensions import db # importación de todo lo relativo a la BBDD
 from .models import Product # importación de la clase "modelo" para la creación de productos
@@ -93,7 +93,7 @@ def validate_product_form(form): # se envía el formulario completo, chequeamos 
 # a.- home: cuando se visite /, se activa la función home
 @products_bp.route("/") # @ decorador, modifica el comportamiento de una función
 def home():
-    return redirect(url_for("products_index"))
+    return redirect(url_for("products.index"))
 
 # b.- lista de productos: permite admés la búsqueda por nombre
 @products_bp.route("/products") # la url sería .../products
@@ -139,7 +139,7 @@ def create():
         if not errores:
             product = Product(**datos) # **datos --> desempaqueta el diccionario con los datos limpios
             db.session.add(product) # añade el product a la sesión, antes de su guardado en BBDD
-            db.sessoin.commit() # guardamos el producto "de verdad" en la BBDD
+            db.session.commit() # guardamos el producto "de verdad" en la BBDD
 
             flash("El producto se ha creado correctamente", "success") # creamos una alerta al usuario
             return redirect(url_for("products.detail", product_id=product.id))

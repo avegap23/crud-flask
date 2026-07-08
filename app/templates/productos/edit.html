@@ -1,6 +1,6 @@
-<!-- Archivo edit.html, edición de productos -->
+{# Archivo edit.html, edición de productos #}
 
-{% extends 'base.html' %} <!-- Se hereda el contenido de base.html, toda la web completa  -->
+{% extends 'base.html' %} {# Se hereda el contenido de base.html, toda la web completa #}
 
 {% block title %}Edición: {{ product.name }} - CRUD Sencillo{% endblock %}
 
@@ -11,7 +11,7 @@
             <div class="card-body">
                 <h1 class="h4 mb-3">Editar producto</h1>
                 <form method="post">
-                    {% include 'products/_form.html' %}
+                    {% include 'productos/_form.html' %}
                 </form>
             </div>
         </div>

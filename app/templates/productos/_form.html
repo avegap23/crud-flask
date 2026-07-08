@@ -1,13 +1,13 @@
-<!-- Archivo _form: formualrio para creación/edición de productos, compartido por varias páginas -->
+{# Archivo _form: formualrio para creación/edición de productos, compartido por varias páginas #}
 
-<!--
+{#
 1.- Creación de una variable temporal, se utiliza mucho en creación y edición:
 si el usuario envía el formulario con errores, podemos vovler a mostrar lo que se
 escribió. Además, si el producto ya existe, se pueden mostrar los datos guardados.
--->
+#}
 {% set current = for_data if form_data is defined and form_data else product %}
 
-<!-- 2. Montamos los campos del formulario en cuestión -->
+{# 2. Montamos los campos del formulario en cuestión #}
 <div class="mb-3">
     <label for="name" class="form-label">Nombre</label>
     <input type="text" class="form-control" name="name" id="name" value="{{ current.name if current else '' }}" maxlength="120" required autofocus>
