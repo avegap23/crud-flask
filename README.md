@@ -35,6 +35,7 @@ crud_flask/
 │   ├── extensions.py
 │   ├── models.py
 │   └── routes.py
+├── instance/
 ├── .gitignore
 ├── README.md
 ├── requirements.txt
@@ -55,7 +56,8 @@ crud_flask/
     - `__init__.py` -> archivo que convierte la carpeta app en un paquete, organizando el proyecto y configurándolo. Este es el patrón APPLICATION FACTORY
     - `extensions.py` -> archivos que tiene las extensiones de Flask (SQLAlchemy)
     - `models.py` -> archivo que define los modelos de la BBDD. Un modelo representa a una tabla
-    - `routes.py` -> archivo que contiene todas las rutas de Flask, o lo que es lo mismo, las URLs de la aplicaicón
+    - `routes.py` -> archivo que contiene todas las rutas de Flask, o lo que es lo mismo, las URLs de la aplicación
+- `instance/` -> carpeta que se creará al iniciarse una instancia de la aplicación, la cual utilizará para trabajar y almacenar cosas
 - `.gitignore` -> se modela de forma que se escribe aquello que Git no debe "ver"
 - `README.md` -> archivo para documentar el proyecto, orientado a GitHub
 requirements.txt -> archivo que contienen las dependencias (librerías necesarias) del proyecto
