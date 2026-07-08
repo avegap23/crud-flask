@@ -20,7 +20,7 @@
                     <dt class="col-sm-3">Precio</dt>
                     <dd class="col-sm-9">{{ '%.2f'|format(product.price) }} €</dd>
                     <dt class="col-sm-3">Descripción</dt>
-                    <dd class="col-sm-9">{{ product.descripcion or 'Sin descripción' }}</dd>
+                    <dd class="col-sm-9">{{ product.description or 'Sin descripción' }}</dd>
                 </dl>
                 <div class="d-flex gap-2">
                     <a class="btn btn-sm btn-outline-primary" href="{{ url_for('products.edit', product_id=product.id) }}">Editar</a>
