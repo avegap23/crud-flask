@@ -63,3 +63,77 @@ requirements.txt -> archivo que contienen las dependencias (librerías necesaria
     - `python run.py`
     - `flask --app run.py --debug run`
 - `config.py` -> archivo de configuración de la aplicación donde podemos encontrar la clave secreta de Flask, la ruta de la BBDD y la configuración de SQLAlchemy
+
+## Instalación
+### 1. Requisitos
+
+- Git
+- Python 3.10 o superior recomendado
+- pip
+
+### 2.1. Instalación en Linux/MacOS
+
+```bash
+git clone https://github.com/avegap23/crud-flask.git
+cd crud-flask
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2.2. Instalación en Windows PowerShell
+
+```powershell
+git clone https://github.com/avegap23/crud-flask.git
+cd crud-flask
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+### 3. Crear la base de datos
+
+```bash
+flask --app run.py init-db
+```
+
+### 4. Insertar datos de ejemplo, opcional
+
+```bash
+python seed.py
+```
+
+## Ejecutar el servidor
+
+```bash
+flask --app run.py --debug run
+```
+
+Luego abre:
+
+```text
+http://127.0.0.1:5000/products
+```
+
+## Ejecutar tests
+
+```bash
+pytest
+```
+
+## Rutas principales
+
+| Método | Ruta | Acción |
+|---|---|---|
+| GET | `/products` | Listar productos |
+| GET | `/products?q=texto` | Buscar productos |
+| GET | `/products/new` | Formulario de creación |
+| POST | `/products/new` | Crear producto |
+| GET | `/products/<id>` | Ver detalle |
+| GET | `/products/<id>/edit` | Formulario de edición |
+| POST | `/products/<id>/edit` | Actualizar producto |
+| POST | `/products/<id>/delete` | Eliminar producto |
+
+## Nota de seguridad
+
+Este proyecto es ideal para aprender la base de un CRUD. Para producción conviene añadir autenticación, CSRF, migraciones con Flask-Migrate, variables de entorno para `SECRET_KEY`, logs, paginación y control de permisos.

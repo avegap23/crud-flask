@@ -13,5 +13,5 @@ class Config:
     SECRET_KEY = "a_cambiar_en_producción"
 
     # BBDD: configuramos la ruta donde se encuentra la BBDD - comunicaicón con la BBDD
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{BASE_DIR / 'instance' / 'crud.sqlite3'}"
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{BASE_DIR / 'instance' / 'bbdd.sqlite'}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False # para evitar que SQLAlchemy rastree objetos
