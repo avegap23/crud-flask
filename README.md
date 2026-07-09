@@ -139,3 +139,48 @@ pytest
 ## Nota de seguridad
 
 Este proyecto es ideal para aprender la base de un CRUD. Para producción conviene añadir autenticación, CSRF, migraciones con Flask-Migrate, variables de entorno para `SECRET_KEY`, logs, paginación y control de permisos.
+
+## Endurecimiento sobre nuestro CRUD
+En base al despliegue v1.0, se desarrolla una capa básica de seguridad sobre el CRUD.
+
+### Cambios principales en la v2.0
+
+1. **Secretos por variables de entorno**
+    - Secret Key sin fijar
+    - En producción, la app no va a arrancar si no tenemos disponible la Secret Key.
+
+2. **Debug desactivado por defecto**
+    - La app no ejecuta el modo debug de forma fija
+    - Se posibilita activar el debug utilizando FLASK_DEBUG
+
+3. **Autenticación simple**
+    - Se protege todo el CRUD por sesión
+    - Para desarrollo se va a utilizar un usuario diferente al de producción
+    - En producción necesitaremos que las contraseñas lleven hash
+
+4. **Protección CSRF**
+    - Todos los formularios POST incorporan un token
+    - Las peticiones sin token devuelven un error [404 (Bad Request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status)
+
+5. **Cabeceras HTTP de seguridad**
+    - Activación de Content-Security-Policy
+    - Activación de X-Frame-Options:DENY
+    - Activación de X-Content-Type-Options: nosniff
+    - Activación de Referrer-Policy
+    - Activación de Permissions-Policy
+
+6. **Cookies de sesión securizadas**
+    - Activación de HttpOnly, SameSite=Lx y SEcure para HTTPS
+
+7. **Validaciones más reforzadas**
+    - Control sobre la longitud de nombre y descripción
+    - Control sobre precios (no negativo, finito, con 2 decimales)
+    - Control de stock (no negativo y con límite máximo)
+    - Escape de comodines en las búsquedas (en SQL, utilizando lso LIKEs)
+
+8. **Restricciones de la BBDD**
+    - Control para evitar precios/stock negativos a nivel de BBDD (en SQL, utilizando los CHECK)
+
+9. **Limpieza de los entregables**
+    - Las carpetas pycache, instance, así como los archivos .en no se deben versionar
+    - La BBDD SQLite3 local no se incluye en un zip entregable "endurecido"
