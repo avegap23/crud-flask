@@ -24,9 +24,11 @@
                 </dl>
                 <div class="d-flex gap-2">
                     <a class="btn btn-sm btn-outline-primary" href="{{ url_for('products.edit', product_id=product.id) }}">Editar</a>
-                    <form action="{{ url_for('products.delete', product_id=product.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar el producto seleccionado?');" method="post">
+                    <form action="{{ url_for('products.delete', product_id=product.id) }}" class="d-inline js-confirm" data-confirm-message="¿Eliminar el producto seleccionado?" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> {# Si no hay token, no se elimina nada #}
                         <button class="btn btn-outline-danger" type="submit">Eliminar</button>
                     </form>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('products.index') }}">Volver</a>
                 </div>
             </div>
         </div>
