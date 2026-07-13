@@ -6,6 +6,8 @@ class Product(db.Model): no es una clase cualquiera... hereda de db.Model, de mo
 que SQLAlchemy entiende que esta nueva clase será una tabla de la BBDD
 '''
 
+"""Modelos para la base de datos"""
+
 # IMPORT ------------------------------------------------------------------------------------------
 from datetime import datetime, timezone # https://docs.python.org/3/library/datetime.html
 from decimal import Decimal # https://docs.python.org/3/library/decimal.html
@@ -14,15 +16,41 @@ from .extensions import db # importación del objeto de tipo BBDD, para trabajar
 
 # CLASS -------------------------------------------------------------------------------------------
 class Product(db.Model):
+    """Producto almacenado en la tabla PRODUCTS"""
+
     # 1.- Nombre de la tabla en la BBDD --> ATRIBUTO DE CLASE
     __tablename__ = "products" # se puede quitar, ya que SQLAlchemy lo puede hacer automáticamente
 
-    # 2.- "montamos el festival" de la BBDD --> MÉTODO CONSTRUCTOR
-    id = db.Column(db.Integer, primary_key=True) # PK
-    name = db.Column(db.String(120), nullable=False, index=True)
-    description = db.Column(db.Text, nullable=True)
-    price = db.Column(db.Numeric(10,2), nullable=False, default=Decimal("0.00")) # (10,2) 10 dígitos, 2 decimales
-    stock = db.Column(db.Integer, nullable=False, default=0)
+    # 2.- "apañando" parámetros
+    __table_args__ = (
+        db.CheckConstraint("price >= 0", name="ck_products_price_non_negative"),
+        db.CheckConstraint("stock >= 0", name="ck_products_stock_non_negative"),
+    )
+
+    # 3.- "montamos el festival" de la BBDD --> MÉTODO CONSTRUCTOR
+    id = db.Column(
+        db.Integer,
+        primary_key=True # PK
+    )
+    name = db.Column(
+        db.String(120),
+        nullable=False,
+        index=True
+    )
+    description = db.Column(
+        db.Text,
+        nullable=True
+    )
+    price = db.Column(
+        db.Numeric(10,2),
+        nullable=False, 
+        default=Decimal("0.00") # (10,2) 10 dígitos, 2 decimales
+    )
+    stock = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0
+    )
     created_at = db.Column(
         db.DateTime,
         nullable=False,
@@ -32,10 +60,10 @@ class Product(db.Model):
         db.DateTime,
         nullable=False,
         default=lambda: datetime.now(timezone.utc), # fecha actual (creación)
-        onupdate=lambda: datetime.now(timezone.utc) # cuando el producto se actualice, cambia la hora por la de ese momento
+        onupdate=lambda: datetime.now(timezone.utc), # cuando el producto se actualice, cambia la hora por la de ese momento
     )
 
-    # 3.- Aplicamos el molde --> MÉTODOS DE LA CLASE
+    # 4.- Aplicamos el molde --> MÉTODOS DE LA CLASE
     def __repr__(self) -> str: # devuelve un string
         # __repr__ intenta mostrar algo que se entienda
         return f"producto {self.id} - {self.name!r}" # devuelve un texto

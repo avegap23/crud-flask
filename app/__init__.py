@@ -13,15 +13,23 @@ instance_relative_config=True: dice a Flask que utilice la carpeta especial inst
     · exist_ok=True: si la carpeta existe, no me des error
 '''
 
+"""Application Factory: crea y conecta las piezas principales de Flask"""
+
 # IMPORTS -----------------------------------------------------------------------------------------
+from __future__ import annotations # https://docs.python.org/3/library/__future__.html#future__.annotations
 from pathlib import Path # https://docs.python.org/3/library/pathlib.html
-from flask import Flask # https://flask.palletsprojects.com/en/stable/
+from flask import Flask, render_template
+# https://flask.palletsprojects.com/en/stable/
+# https://flask.palletsprojects.com/en/stable/quickstart/#rendering-templates
+
 from config import Config # importación del archivo de configuración
 from .extensions import db # importación de db desde el archivo extensions.py
 
 # FUNCTIONS ---------------------------------------------------------------------------------------
 # Creación de la app, recibe el archivo config.py
 def create_app(config_class=Config):
+    """Crea una instancia configurada de la aplicación Flask"""
+
     # 1.- Creación de la app como tal
     app = Flask(__name__, instance_relative_config=True)
 
@@ -44,5 +52,22 @@ def create_app(config_class=Config):
         """Creación de las tablas de la base de datos"""
         db.create_all()
         print("BBDD inicializada correctamente")
+
+    # 7.- Contemplando y maquetando los posibles errores
+    @app.errorhandler(400)
+    def bad_request(error):
+        return render_template("errors/error.html", code=400, title="Petición no válida", error=error), 400
+    
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template("errors/error.html", code=404, title="Página no encontrada", error=error), 404
+    
+    @app.errorhandler(413)
+    def payload_too_large(error):
+        return render_template("errors/error.html", code=413, title="Petición excesivamente grande", error=error), 413
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        return render_template("errors/error.html", code=500, title="Error interno", error=error), 500
         
     return app # retornamos la app creada y configurada

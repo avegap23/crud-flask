@@ -40,19 +40,34 @@ VENTAJAS:
     - más productividad
 '''
 
+"""Rutas de la aplicación CRUD de productos"""
 # IMPORTS -----------------------------------------------------------------------------------------
-from decimal import Decimal, InvalidOperation # https://docs.python.org/3/library/decimal.html
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from __future__ import annotations # https://docs.python.org/3/library/__future__.html#future__.annotations
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP # https://docs.python.org/3/library/decimal.html
+from flask import Blueprint, flash, redirect, render_template, request, url_for, session, current_app
 
 from .extensions import db # importación de todo lo relativo a la BBDD
 from .models import Product # importación de la clase "modelo" para la creación de productos
+
+from .security import AUTH_SESSION_KEY, safe_redirect, validate_admin_credentials
+# control de login, comparativas de seguridad para la sesión, redirecciones seguras...
 
 # BLUEPRINTS --------------------------------------------------------------------------------------
 # Blueprint: controlamos que las templates estén en la carpeta PRODUCTS
 products_bp = Blueprint("products", __name__)
 
+# CONSTANTES --------------------------------------------------------------------------------------
+MAX_NAME_LENGTH = 120
+MAX_DESCRIPTION_LENGTH = 1000
+MAX_PRICE = Decimal("999999999.99")
+MAX_STOCK = 1_000_000 # 1.000.000 es casi lo mismo
+PRICE_STEP = Decimal("0.01")
+
 # FUNCTIONS ---------------------------------------------------------------------------------------
 # Validación de formularios y sus respectivos campos
+def _escape_like(value:str) -> str:
+    """Escape de caracteres comodín en búsquedas"""
+
 def validate_product_form(form): # se envía el formulario completo, chequeamos todo "a una"
     """Validación de los datos enviados desde el formulario de Flask-HTML"""
     errores = [] # creación de array de errores, donde se van a guardar los errores encontrados
@@ -67,12 +82,26 @@ def validate_product_form(form): # se envía el formulario completo, chequeamos 
     # a.- validación del nombre
     if not name:
         errores.append("¡El nombre es obligatorio!")
+    elif len(name) > MAX_NAME_LENGTH:
+        errores.append(f"El nombre no puede superar {MAX_NAME_LENGTH} caracteres")
+
+    if len(description) > MAX_DESCRIPTION_LENGTH:
+        errores.append(f"La descripción no puede superar {MAX_DESCRIPTION_LENGTH} caracteres")
     
     # b.- validación del precio
     try:
         price = Decimal(price_raw) # casting para convertir a número decimal
+
+        # número válido y finito
+        if not price.is_finite():
+            raise InvalidOperation
+        # ajuste de precio al número de decimales permitido
+        price = price.quantize(PRICE_STEP, rounding=ROUND_HALF_UP)
+
         if price < 0:
             errores.append("¡El precio no puede ser negativo!")
+        elif price > MAX_PRICE:
+            errores.append(f"El precio no puede superar {MAX_PRICE}")
     except (InvalidOperation, ValueError): # contemplamos errores de valor y de operaciones inválidas
         price = Decimal("0.00")
         errores.append("El precio debe tener un formato de número válido")
@@ -82,6 +111,8 @@ def validate_product_form(form): # se envía el formulario completo, chequeamos 
         stock = int(stock_raw) # casting para convertir a entero
         if stock < 0:
             errores.append("¡El stock no puede ser negativo!")
+        elif stock > MAX_STOCK:
+            errores.append(f"El stock no puede superar {MAX_STOCK}")
     except ValueError: # contemplamos errores de valor y de operaciones inválidas
         stock = 0
         errores.append("El stock debe ser un número entero")
@@ -90,24 +121,80 @@ def validate_product_form(form): # se envía el formulario completo, chequeamos 
     return errores, {"name":name, "description":description, "price":price, "stock":stock}
 
 # Creación de rutas en Flask y redirecciones al usuario
-# a.- home: cuando se visite /, se activa la función home
+
+# a.- protección de login (antes de la petición, por si el usuario visita "a las bravas")
+@products_bp.before_request
+def require_login():
+    """Protege el CRUD con una autenticación simpl por sesión"""
+    if not current_app.config.get("REQUIRE_LOGIN", True):
+        return None
+    
+    # Dice: "la ruta es pública, el usuario la ve sin el login"
+    public_endpoints = {"products.login"}
+    if request.endpoint in public_endpoints:
+        return None
+    
+    # si no está logeado, se redirige a la página de login
+    if not session.get(AUTH_SESSION_KEY):
+        return redirect(url_for("products.login", next=request.full_path))
+    
+    return None
+
+# b.- login: formulario de acceso al CRUD
+@products_bp.route("/login", methods=["GET", "POST"])
+def login():
+    """Formulario de acceso al sistema (CRUD)"""
+    # validación de sesión: si el usuario está logueado, no le muestres el login otra vez
+    if session.get(AUTH_SESSION_KEY):
+        return safe_redirect(request.args.get("next"))
+    
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if validate_admin_credentials(username, password):
+            session.clear() # borrado de datos de la sesión actual, empezamos una nueva
+            session[AUTH_SESSION_KEY] = True # guardado de la sesión si está autenticado el usuario
+            session.permanent = True # sesión abierta X minutos, sin deslogueo automático
+    
+        current_app.logger.warning("Intento fallido por el usuario %r", username)
+        flash("Usuario o contraseña incorrectos", "danger")
+
+        return render_template("auth/login.html", next=request.form.get("next", "")), 401 # 401 = Unauthorized
+    
+    return render_template("auth/login.html", next=request.form.get("next", ""))
+
+# c.- logout, cierre de sesión y salida del CRUD
+@products_bp.route("/logout", method=["POST"])
+def logout():
+    """Cierre de sesión del usuario actual"""
+    session.clear()
+    flash("Sesión cerrada de forma correcta", "success")
+    return redirect(url_for("prodcuts.login"))
+
+# d.- home: cuando se visite /, se activa la función home
 @products_bp.route("/") # @ decorador, modifica el comportamiento de una función
 def home():
     return redirect(url_for("products.index"))
 
-# b.- lista de productos: permite admés la búsqueda por nombre
+# e.- lista de productos: permite admés la búsqueda por nombre
 @products_bp.route("/products") # la url sería .../products
 def index():
     # 1.- obtener la petición de la URL por parte del usuario
     q = request.args.get("q","").strip() # obtención del parámetro de la URL
     # /products?q=teclado --> el usuario entró buscando teclados
 
+    if len(q) > MAX_NAME_LENGTH:
+        q = q[:MAX_NAME_LENGTH]
+        flash(f"La búsqueda se ha limitado a {MAX_NAME_LENGTH} caracteres", "warning")
+
     # 2.- pedir a la BBDD el listado de productos (completo) o la query
     statement = db.select(Product).order_by(Product.created_at.desc())
     # pedimos los productos y los ordenamos en modo descendente de creación
 
     if q:
-        statement = statement.where(Product.name.ilike(f"%{q}%"))
+        escape_q = _escape_like(q) # evitamos los caracteres de escape
+        statement = statement.where(Product.name.ilike(f"%{q}%", escape="\\"))
         # añadimos un filtro donde la query estará contenida en un texto, da igual lo que haya antes y después
         # ilike no hace casesensitive
     
@@ -120,13 +207,13 @@ def index():
     # 4.- renderizamos la plantilla
     return render_template("productos/index.html", products=productos, q=q)
 
-# c.- detalle del producto
+# f.- detalle del producto
 @products_bp.route("/products/<int:product_id>") # la URL sería .../products/<ID>
 def detail(product_id):
     producto = db.get_or_404(Product, product_id) # me da el producto o un 404 si no existe
     return render_template("productos/detail.html", product=producto)
 
-# d.- creación de nuevos productos
+# g.- creación de nuevos productos
 @products_bp.route("/products/new", methods=["GET", "POST"]) # la url sería .../products/new
 # GET muestra página/formulario -- POST procesa los datos enviados
 def create():
@@ -149,15 +236,14 @@ def create():
         for error in errores:
             flash(error, "danger")
         
-        return render_template("productos/create.html", product=datos), 400
+        return render_template("productos/create.html", product=None, form_data=datos), 400
         # se vuelve a mostrar el formulario de creación de producto
-        # product=datos: el formulario conserva los datos que escribe el usuario
         # 400: significa BAD REQUEST, el formulario llegó, pero los datos no son válidos
     
     return render_template("productos/create.html", product=None)
     # se ejecuta cuando el usuario entra por 1ª vez a la página "crear", mostrando un formulario totalmente vacío
 
-# e.- editar un producto
+# h.- editar un producto
 @products_bp.route("/products/<int:product_id>/edit", methods=["GET", "POST"])
 # GET muestra página/formulario -- POST procesa los datos enviados
 def edit(product_id):
@@ -190,7 +276,7 @@ def edit(product_id):
     
     return render_template("productos/edit.html", product=None)
 
-# f.- borrar un producto
+# i.- borrar un producto
 @products_bp.route("/products/<int:product_id>/delete", methods=["POST"])
 def delete(product_id):
     # 0.- comprobar si existe el producto o 404 si no está en la BBDD
