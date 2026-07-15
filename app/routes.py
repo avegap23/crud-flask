@@ -1,4 +1,7 @@
 # archivo routes.py --> las rutas de la app web, es decir, las URLs
+
+from __future__ import annotations # https://docs.python.org/3/library/__future__.html#future__.annotations
+
 '''
 def mi_decorador(funcion):
     def envoltorio():
@@ -42,7 +45,6 @@ VENTAJAS:
 
 """Rutas de la aplicación CRUD de productos"""
 # IMPORTS -----------------------------------------------------------------------------------------
-from __future__ import annotations # https://docs.python.org/3/library/__future__.html#future__.annotations
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP # https://docs.python.org/3/library/decimal.html
 from flask import Blueprint, flash, redirect, render_template, request, url_for, session, current_app
 
@@ -156,21 +158,23 @@ def login():
             session.clear() # borrado de datos de la sesión actual, empezamos una nueva
             session[AUTH_SESSION_KEY] = True # guardado de la sesión si está autenticado el usuario
             session.permanent = True # sesión abierta X minutos, sin deslogueo automático
-    
-        current_app.logger.warning("Intento fallido por el usuario %r", username)
-        flash("Usuario o contraseña incorrectos", "danger")
+            flash("Sesión iniciada correctamente", "success")
+            return safe_redirect(request.form.get("next"))
 
-        return render_template("auth/login.html", next=request.form.get("next", "")), 401 # 401 = Unauthorized
+        else:
+            current_app.logger.warning("Intento fallido por el usuario %r", username)
+            flash("Usuario o contraseña incorrectos", "danger")
+            return render_template("auth/login.html", next=request.form.get("next", "")), 401 # 401 = Unauthorized
     
     return render_template("auth/login.html", next=request.form.get("next", ""))
 
 # c.- logout, cierre de sesión y salida del CRUD
-@products_bp.route("/logout", method=["POST"])
+@products_bp.route("/logout", methods=["POST"])
 def logout():
     """Cierre de sesión del usuario actual"""
     session.clear()
     flash("Sesión cerrada de forma correcta", "success")
-    return redirect(url_for("prodcuts.login"))
+    return redirect(url_for("products.login"))
 
 # d.- home: cuando se visite /, se activa la función home
 @products_bp.route("/") # @ decorador, modifica el comportamiento de una función

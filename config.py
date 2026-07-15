@@ -27,7 +27,7 @@ def _env_bool(name:str, default:bool = False) -> bool:
     return value.strip().lower() in {"1", "True", "yes", "on", "si", "si"}
 
 # CLASSES -----------------------------------------------------------------------------------------
-# Clase Config: contiene la configuaración de Flask
+# Clase Config: contiene la configuración de Flask
 class Config:
     """Configuración base segura para desarrollo y despliegue de la aplicación"""
 
@@ -39,10 +39,11 @@ class Config:
     # 2.- Configuración de clave secreta y de la firma de tokens (CSRF)
     SECRET_KEY = os.getenv("SECRET_KEY") # busca la SECRET_KEY. Si no está, la crea con valor None
 
-    if APP_ENV == "producción" and not SECRET_KEY:
-        raise RuntimeError("¡Debes definir la SECRET_KEY en producción!")
+    # si estamos en producción y pasa lo que no debería pasar...
+    if APP_ENV == "production" and not SECRET_KEY:
+        raise RuntimeError("¡Debes definir SECRET_KEY en producción!")
     
-    # si se nos olvida crear la SECRET_KEY
+    # si se nos olvida crear la SECRET_KEY: la clave se crea de nuevo en cada arranque
     if not SECRET_KEY:
         SECRET_KEY = "dev-" + secrets.token_urlsafe(32)
         # la clave será: dev-texto_aleatorio_seguro_usando_32_bytes(43 caracteres compatibles con URLs)
@@ -60,7 +61,7 @@ class Config:
     SESSION_REFRESH_EACH_REQUEST = False # evitamos renovar las cookies de sesión en cada petición 
 
     #5.- Control de limitación de tamaño de petición: evitamos envíos gigantes al formulario
-    MAX_CONTENT_LENGTH = int (os.getenv("MAX_CONTENT_LENGTH", str(1*1024*1024)))
+    MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", str(1*1024*1024)))
     # 1*1024*1024 = 1.048.576 bytes -> 1 MB
 
     # 6.- Cabeceras & CSRF: activando las protecciones de seguridad globales del CRUD

@@ -9,7 +9,7 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <p class="text-muted">Introduce tus credenciales de administrador</p>
-                    <form action="post" novalidate> {# el navegador no valida nada #}
+                    <form method="post" novalidate> {# el navegador no valida nada #}
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="next" value="{{ next }}"> {# guardamos la URL de destino con el formulario completo #}
                         <div class="mb-3">

@@ -1,6 +1,8 @@
 # archivo __init__.py
 # convierte app en un paquete
 
+from __future__ import annotations # https://docs.python.org/3/library/__future__.html#future__.annotations
+
 '''
 __name__: dice a Flask donde está ubicada la aplicación
 instance_relative_config=True: dice a Flask que utilice la carpeta especial instance:
@@ -16,7 +18,6 @@ instance_relative_config=True: dice a Flask que utilice la carpeta especial inst
 """Application Factory: crea y conecta las piezas principales de Flask"""
 
 # IMPORTS -----------------------------------------------------------------------------------------
-from __future__ import annotations # https://docs.python.org/3/library/__future__.html#future__.annotations
 from pathlib import Path # https://docs.python.org/3/library/pathlib.html
 from flask import Flask, render_template
 # https://flask.palletsprojects.com/en/stable/
@@ -24,6 +25,7 @@ from flask import Flask, render_template
 
 from config import Config # importación del archivo de configuración
 from .extensions import db # importación de db desde el archivo extensions.py
+from .security import register_security
 
 # FUNCTIONS ---------------------------------------------------------------------------------------
 # Creación de la app, recibe el archivo config.py
@@ -42,18 +44,21 @@ def create_app(config_class=Config):
     # 4.- Conexión BBDD: SQLAlchemy se conecta con Flask
     db.init_app(app)
 
-    # 5.- Importación de Blueprints (que agrupan rutas)
+    # 5.- Registro de seguridad
+    register_security(app)
+
+    # 6.- Importación de Blueprints (que agrupan rutas)
     from .routes import products_bp # evitamos importaciones circulares
     app.register_blueprint(products_bp) # registro para que funcionen las rutas
 
-    # 6.- Inyecta un coomando en la terminal
+    # 7.- Inyecta un coomando en la terminal
     @app.cli.command("init-db")
     def init_db_command():
         """Creación de las tablas de la base de datos"""
         db.create_all()
         print("BBDD inicializada correctamente")
 
-    # 7.- Contemplando y maquetando los posibles errores
+    # 8.- Contemplando y maquetando los posibles errores
     @app.errorhandler(400)
     def bad_request(error):
         return render_template("errors/error.html", code=400, title="Petición no válida", error=error), 400
