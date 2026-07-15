@@ -96,6 +96,59 @@ def safe_redirect(target: str | None, fallback_endpoint:str = "products.index", 
     # **values me permite pasar parámetros adicionales a url_for
 
 # SECURE ROUTES -----------------------------------------------------------------------------------
-
-
 # f.- Registro de CSRF, cabeceras seguras y helpers Jinja
+def register_security(app):
+    """Registra CSRF, cabeceras de seguridad y los helpers de Jinja"""
+    
+    # helper = una función global que Jinja "cree" que es un filtro
+    app.jinja_env.globals["csrf_token"] = generate_csrf_token()
+    # <input type="hidden" name"csrf_token" value="{{ csrf_token }}">
+    # generate_csrf_token jinja ejecuta csrf_token(). Si escribes generate_csrf_token(),
+    # guardas el resultado generado en ese momento
+
+    # 1.- Protección antes del proceso de la petición HTTP
+    @app.before_request
+    def csrf_protect():
+        # ¿CSRF activado?
+        if not app.config.get("CSRF_ENABLED", True):
+            return None
+        
+        # ¿Métodos de seguridad activados? Entonces no compruebo el token...
+        if request.method in SAFE_METHODS:
+            return None
+        
+        # Momento de modificar... ¡¡Validado el token!!
+        if not validate_csrf_token():
+            # mensaje de bloqueo de la ruta (logs)
+            current_app.logger.warning("Petición bloqueada por CSRF inválido: %s", request.path)
+            # error 400
+            abort(400, description="¡¡Token inválido o ausente!!")
+    
+    # 2.- Protección después de procesar la ruta, antes de enviar la respuesta al navegador
+    @app.after_request
+    def set_security_headers(response):
+        # comprobando que las cabeceras de seguridad están activadas
+        if not app.config.get("SECURITY_HEADERS_ENABLED", True):
+            return response
+        
+        # definición de CABECERAS DE SEGURIDAD
+        response.headers.setdefault("X-Content-Type_Options", "nosniff") # evita ejecución de JS o "adivinación"
+        response.headers.setdefault("X-Frame-Options", "DENY") # evita el clickjaking, impide que la página se muestre en un iframe
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin") # para navegar en el dominio original
+        response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()") # podemos desactivar cierto hardware (por ejemplo)
+
+        # definición de CABECERAS CSP (Content Security Policy)
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self';" # sólo permite recursos del mismo dominio
+            "base-uri 'self';" # restringimos la tag <base> al mismo origen
+            "form-action 'self';" # los formularios sólamente se envían dentro del mismo dominio
+            "frame_ancestors 'none';" # impedimos que otros sitios inserten esta APP en un iframe
+            "object-src 'none';" # bloquea elementos como <object> y <embed>
+            "img-src 'self', data:;" # permite utilizar imágenes del propio dominio o las que se incluyan con data:
+            "style-src 'self' https://cdn.jsdelivr.net;" # permite CSS local o de jsDelivr
+            "script-src 'self' https://cdn.jsdelivr.net;" # permite JS local o de jsDelivr
+            "connect-src 'self;", # las conexiones a APIs sólo pueden dirigirse al mismo origen
+        )
+        return response
+        # setdefault actúa si no hay políticas definidas, poniendo "por defecto" las mismas. Si ya las tenemos, no se sobreescriben

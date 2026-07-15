@@ -107,14 +107,35 @@ python seed.py
 
 ## Ejecutar el servidor
 
-```bash
+```
+cp .env.example .env
 flask --app run.py --debug run
+```
+
+Luego abre:
+```text
+http://127.0.0.1:5000/login
+```
+
+Credenciales por defecto de la APP:
+```text
+usuario: admin
+contraseña: admin123
+```
+
+## Configuración mínima para producción
+```bash
+export APP_ENV=production
+export SECRET_KEY="clave-larga-aleatoria"
+export SESSION_COOKIE_SECURE=true
+export ADMIN_USERNAME="admin"
+export ADMIN_PASSWORD_HASH="hash-generado-por-Werkzeug"
 ```
 
 Luego abre:
 
 ```text
-http://127.0.0.1:5000/products
+http://127.0.0.1:5000/
 ```
 
 ## Ejecutar tests
