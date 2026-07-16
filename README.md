@@ -205,3 +205,7 @@ En base al despliegue v1.0, se desarrolla una capa básica de seguridad sobre el
 9. **Limpieza de los entregables**
     - Las carpetas pycache, instance, así como los archivos .en no se deben versionar
     - La BBDD SQLite3 local no se incluye en un zip entregable "endurecido"
+
+## Más documentación en:
+
+<h4><a href="https://avegap23.github.io/crud-flask-docs/" target="_blank">https://avegap23.github.io/crud-flask-docs/</a></h4>
